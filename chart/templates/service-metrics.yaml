@@ -1,0 +1,22 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "speedtest-exporter.fullname" . }}-metrics
+  labels:
+  {{- include "speedtest-exporter.labels" . | nindent 4 }}
+  {{- if .Values.metrics.service.annotations }}
+  annotations: {{ toYaml .Values.metrics.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.metrics.service.type }}
+  {{ if eq .Values.metrics.service.type "LoadBalancer" -}} {{ if .Values.metrics.service.loadBalancerIP -}}
+  loadBalancerIP: {{ .Values.metrics.service.loadBalancerIP }}
+  {{ end -}}
+  {{- end -}}
+  ports:
+  - name: metrics
+    port: 9112
+  selector:
+    {{- include "speedtest-exporter.selectorLabels" . | nindent 8 }}
+{{- end }}
